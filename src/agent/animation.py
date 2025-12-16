@@ -33,8 +33,7 @@ class TimelineTrack:
     def add_keyframe(self, keyframe: Keyframe) -> None:
         if self.locked:
             raise ValueError("Track is locked; cannot add keyframe")
-        self.keyframes.append(keyframe)
-        self.keyframes.sort(key=lambda k: k.time)
+        bisect.insort(self.keyframes, keyframe, key=lambda k: k.time)
 
     def delete_keyframe(self, property_path: str, time: float) -> None:
         if self.locked:
