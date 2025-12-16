@@ -18,6 +18,15 @@
 1. Read `docs/3rdEye_TECH_SPEC.md` for feature scope, stack, and milestones.
 2. Use `docs/ARCHITECTURE.md` to align automation hooks with Unity build/test/export pipelines.
 3. Extend `src/agent/` modules to orchestrate Unity CLI tasks (import, build, test, export) and to integrate RAG+RL policies.
+4. Run the lightweight orchestration harness:
+
+   ```bash
+   python -m src.agent.cli "Implement plane detection with anchors" \
+     --constraint "Maintain 60 FPS" \
+     --doc "Use AR Foundation 5.0 plane subsystem"
+   ```
+
+   The CLI wires planner → RAG → policy → tool executor to provide a runnable skeleton while you replace the stubbed tools with Unity automation.
 
 ## Roadmap Highlights
 - Implement Unity project layout (Assets/ Scripts/ Prefabs/ Scenes/ Tests/) per the tech spec.
