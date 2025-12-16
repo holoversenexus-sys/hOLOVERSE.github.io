@@ -14,13 +14,11 @@
 - `docs/3rdEye_TECH_SPEC.md`: Technical specification and delivery milestones for 3rdEye.
 - `src/agent/`: Python skeleton for the planner/RAG/policy/tooling stack that will automate Unity workflows.
 
-For Phase 5 animation delivery (timeline editor, keyframes, playback, baking/presets), consult the dedicated implementation guide embedded in `docs/3rdEye_TECH_SPEC.md`. A lightweight, engine-agnostic animation timeline, player, recorder, and presets now live in `src/agent/animation.py` for use in automation pipelines or Unity-bound exporters.
-
 ## Quick Start (Planning)
 1. Read `docs/3rdEye_TECH_SPEC.md` for feature scope, stack, and milestones.
-2. Use `docs/ARCHITECTURE.md` to align automation hooks with Unity build/test/export pipelines and the Large Action Model (LAM) stages.
+2. Use `docs/ARCHITECTURE.md` to align automation hooks with Unity build/test/export pipelines.
 3. Extend `src/agent/` modules to orchestrate Unity CLI tasks (import, build, test, export) and to integrate RAG+RL policies.
-4. Run the LAM-enabled orchestration harness (perception → intent → tasks → plan/execute):
+4. Run the lightweight orchestration harness:
 
    ```bash
    python -m src.agent.cli "Implement plane detection with anchors" \

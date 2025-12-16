@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, Sequence
+from typing import Dict, Iterable
 
 from .config import AgentConfig
 from .planner import Planner
@@ -34,19 +34,14 @@ class BuildOrchestrator:
         self.policy = policy
         self.executor = executor
 
-    def run_goal(
-        self,
-        goal: str,
-        constraints: Iterable[str] | None = None,
-        plan: Sequence | None = None,
-    ) -> BuildResult:
-        steps = plan or self.planner.build_plan(goal)
+    def run_goal(self, goal: str, constraints: Iterable[str] | None = None) -> BuildResult:
+        plan = self.planner.build_plan(goal)
         synthesis = self.rag.synthesize(goal, constraints or [])
         decision = self.policy.choose(
             {
                 "goal": goal,
                 "constraints": list(constraints or []),
-                "plan": [getattr(step, "description", str(step)) for step in steps],
+                "plan": [step.description for step in plan],
                 "draft": synthesis,
             }
         )

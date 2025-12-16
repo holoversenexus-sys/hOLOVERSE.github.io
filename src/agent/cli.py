@@ -7,7 +7,6 @@ from typing import List
 
 from .config import AgentConfig
 from .encoding import RegistryBackedActionSpace, SimpleStateEncoder
-from .lam import IntentRecognizer, LAMPipeline, PerceptionEngine, TaskDecomposer
 from .memory import EchoGenerator, InMemoryStore, SimpleRetriever
 from .pipeline import BuildOrchestrator
 from .planner import Planner
@@ -51,19 +50,6 @@ def build_orchestrator(initial_docs: List[str] | None = None) -> BuildOrchestrat
     return BuildOrchestrator(config, planner, rag, policy, executor)
 
 
-def build_lam(initial_docs: List[str] | None = None) -> LAMPipeline:
-    orchestrator = build_orchestrator(initial_docs)
-    perception = PerceptionEngine()
-    recognizer = IntentRecognizer()
-    decomposer = TaskDecomposer(orchestrator.planner)
-    return LAMPipeline(
-        perception=perception,
-        intent_recognizer=recognizer,
-        decomposer=decomposer,
-        orchestrator=orchestrator,
-    )
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run an autonomous AR agent goal.")
     parser.add_argument("goal", help="High-level goal or feature request")
@@ -81,23 +67,9 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    lam = build_lam(initial_docs=args.doc)
-    result, trace = lam.run(args.goal, constraints=args.constraint)
-    print(
-        json.dumps(
-            {
-                "success": result.success,
-                "logs": result.logs,
-                "rewards": result.rewards,
-                "trace": {
-                    "goal": trace.intent.goal,
-                    "constraints": trace.intent.constraints,
-                    "plan": [step.description for step in trace.plan],
-                },
-            },
-            indent=2,
-        )
-    )
+    orchestrator = build_orchestrator(initial_docs=args.doc)
+    result = orchestrator.run_goal(args.goal, constraints=args.constraint)
+    print(json.dumps({"success": result.success, "logs": result.logs, "rewards": result.rewards}, indent=2))
 
 
 if __name__ == "__main__":

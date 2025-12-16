@@ -17,15 +17,6 @@ An autonomous agent that designs, builds, tests, and deploys spatial-computing f
             -> [Reward Shaper & Memory Store]
 ```
 
-## Large Action Model (LAM) autonomous flow
-1. **Perception:** Normalize raw inputs (text, screenshots, audio metadata) into structured observations with tokens and modality tags.
-2. **Intent Recognition:** Extract the user goal and constraints from the observation (heuristics now, policy/LLM later).
-3. **Task Decomposition:** Use the planner to break the intent into ordered steps with rationales and dependencies.
-4. **Action Planning + Memory:** RAG synthesizes a draft using retrieved exemplars; the policy selects the next tool using encoded state plus memory-backed plan context.
-5. **Execution:** Tool executor runs the chosen action (Unity automation, builds, tests) and emits telemetry that feeds reward shaping and future policy updates.
-
-The Python harness in `src/agent/lam.py` wires these stages so they can be swapped for production components (e.g., perception via OCR/ASR, intent via LLM, action planning via RL), while keeping the trace (goal, constraints, plan) available for observability.
-
 ### Planner
 - Decomposes goals into actionable steps.
 - Consults the long-term memory store (vector DB) for prior solutions and design patterns.
@@ -69,15 +60,6 @@ The Python harness in `src/agent/lam.py` wires these stages so they can be swapp
 - **New Tools:** Register Unity Editor automation, ARCore/ARKit diagnostics, shader profiling, or custom simulators.
 - **New Modalities:** Incorporate 3D asset generation, gesture synthesis, or physics curriculum learning.
 - **Safety:** Static/dynamic guards, secrets scanning, protected branches, and gated deploy approvals.
-
-## Animation System Architecture (Phase 5 focus)
-- **TimelineEditor (UI):** Bottom-docked panel rendering ruler, playhead, track lanes, and keyframe diamonds. Splits static and dynamic canvases to reduce rebuilds; keyboard handlers for play/pause (Space), insert key (K), and copy/paste (Ctrl/Cmd+C/V).
-- **AnimationTimeline Model:** Holds duration, frame rate, current time, and `AnimationTrack` list. Each track maps to a scene object and carries sorted `KeyframeData` entries plus mute/lock flags.
-- **KeyframeRecorder:** Observes transform/material property changes when armed or auto-keyframe is enabled; inserts/merges keyframes on the active track at the current time with frame snapping. Emits undoable commands for all edits.
-- **AnimationPlayer:** Fixed-step (60 Hz) playback loop with speed multipliers and optional reverse/loop modes. Performs per-track interpolation (linear, SmoothStep, Bezier, Quaternion SLERP) and batches property applications per object.
-- **CurveEditor:** Per-property graph with Bezier tangents and tangent mode controls. Supports box selection, retiming, scaling, and snapping to frame increments.
-- **Baker & Exporter:** Converts timelines to Unity `AnimationClip`s at 30/60 FPS, performs key reduction, and embeds baked data into scene JSON as well as USDZ/GLB exports. Preset generator seeds common motions (Rotate360, Bounce, Fade, Orbit).
-- **Performance Guards:** Track culling when the panel is closed, buffer reuse to avoid GC spikes, off-screen object throttling, and profiling target of 60 FPS with 10 animated objects over 5s clips.
 
 ## Minimal Stack Recommendations
 - **Language:** Python for orchestration; Rust/C++ bindings for performance-critical CV modules.
