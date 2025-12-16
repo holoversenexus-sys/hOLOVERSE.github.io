@@ -7,6 +7,14 @@ from typing import List
 
 from .config import AgentConfig
 from .encoding import RegistryBackedActionSpace, SimpleStateEncoder
+from .lam import (
+    ActionPlannerWithMemory,
+    ExecutorStage,
+    IntentRecognizer,
+    LAMPipeline,
+    PerceptionStage,
+    TaskDecomposer,
+)
 from .memory import EchoGenerator, InMemoryStore, SimpleRetriever
 from .pipeline import BuildOrchestrator
 from .planner import Planner
@@ -47,7 +55,14 @@ def build_orchestrator(initial_docs: List[str] | None = None) -> BuildOrchestrat
     action_space = RegistryBackedActionSpace(registry.available())
     policy = ActionPolicy(encoder=SimpleStateEncoder(), action_space=action_space)
     executor = ToolExecutor(registry)
-    return BuildOrchestrator(config, planner, rag, policy, executor)
+    lam = LAMPipeline(
+        perception=PerceptionStage(),
+        intent_recognizer=IntentRecognizer(),
+        decomposer=TaskDecomposer(planner),
+        action_planner=ActionPlannerWithMemory(rag=rag, policy=policy, memory_store=store),
+        executor=ExecutorStage(executor),
+    )
+    return BuildOrchestrator(config, planner, rag, policy, executor, lam)
 
 
 def main() -> None:
@@ -65,10 +80,17 @@ def main() -> None:
         default=[],
         help="Seed documents to prime retrieval",
     )
+    parser.add_argument(
+        "--attachment",
+        action="append",
+        default=[],
+        help="Optional attachment notes to feed into perception",
+    )
+
     args = parser.parse_args()
 
     orchestrator = build_orchestrator(initial_docs=args.doc)
-    result = orchestrator.run_goal(args.goal, constraints=args.constraint)
+    result = orchestrator.run_goal(args.goal, constraints=args.constraint, attachments=args.attachment)
     print(json.dumps({"success": result.success, "logs": result.logs, "rewards": result.rewards}, indent=2))
 
 

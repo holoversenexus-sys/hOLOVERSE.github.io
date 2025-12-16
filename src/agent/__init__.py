@@ -3,6 +3,14 @@
 from .cli import build_orchestrator, register_default_tools
 from .config import AgentConfig
 from .encoding import RegistryBackedActionSpace, SimpleStateEncoder
+from .lam import (
+    ActionPlannerWithMemory,
+    ExecutorStage,
+    IntentRecognizer,
+    LAMPipeline,
+    PerceptionStage,
+    TaskDecomposer,
+)
 from .memory import EchoGenerator, InMemoryStore, SimpleRetriever
 from .pipeline import BuildOrchestrator
 from .planner import Planner, PlanStep
@@ -15,7 +23,11 @@ __all__ = [
     "AgentConfig",
     "BuildOrchestrator",
     "EchoGenerator",
+    "ExecutorStage",
     "InMemoryStore",
+    "IntentRecognizer",
+    "LAMPipeline",
+    "PerceptionStage",
     "Planner",
     "PlanStep",
     "PolicyDecision",
@@ -23,6 +35,8 @@ __all__ = [
     "RetrievalAugmentedGenerator",
     "SimpleRetriever",
     "SimpleStateEncoder",
+    "TaskDecomposer",
+    "ActionPlannerWithMemory",
     "ToolExecutor",
     "ToolRegistry",
     "build_orchestrator",
