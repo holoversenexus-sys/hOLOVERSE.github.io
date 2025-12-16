@@ -26,7 +26,24 @@
      --doc "Use AR Foundation 5.0 plane subsystem"
    ```
 
-   The CLI wires planner → RAG → policy → tool executor to provide a runnable skeleton while you replace the stubbed tools with Unity automation.
+   CLI flags:
+   - `goal` (positional): required goal text.
+   - `--constraint`: repeatable constraints applied to planning and policy selection.
+   - `--doc`: repeatable seed documents stored in the in-memory retriever for RAG synthesis.
+
+   Default tools registered for the runnable stub harness:
+   - `noop`: returns a success marker and is useful for dry-run validation.
+   - `summarize_draft`: echoes the synthesized draft length to demonstrate data flow through the policy → executor path.
+
+   JSON output fields (printed to stdout) for traceability:
+   - `success`: overall success boolean from the orchestrator.
+   - `logs`: ordered list of tool execution messages.
+   - `rewards`: shaped reward values emitted by the policy.
+   - `trace.goal`: recovered intent goal after perception/recognition.
+   - `trace.constraints`: explicit constraints considered during planning.
+   - `trace.plan`: ordered plan steps emitted by the planner/decomposer.
+
+   The harness wires perception → intent recognition → task decomposition → planner/RAG → policy → tool executor to provide a runnable skeleton while you replace the stubbed tools with Unity automation. The in-memory retriever/generator and registry-backed action space keep the loop self-contained for experimentation.
 
 ## Roadmap Highlights
 - Implement Unity project layout (Assets/ Scripts/ Prefabs/ Scenes/ Tests/) per the tech spec.
